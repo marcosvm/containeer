@@ -42,10 +42,8 @@ func main() {
 		AuthUrl:  authUrl,
 	}
 
-	err := co.Authenticate()
-
-	if err != nil {
-		panic(err)
+	if err := co.Authenticate(); err != nil {
+		log.Fatal(err)
 	}
 
 	if *list {
@@ -84,8 +82,7 @@ func handle(c string, wg *sync.WaitGroup, throttle chan int) {
 }
 
 func createContainer(name string) {
-	err := co.ContainerCreate(name, nil)
-	if err != nil {
+	if err := co.ContainerCreate(name, nil); err != nil {
 		log.Printf("%s failed", name)
 	} else {
 		log.Println(name)
