@@ -2,7 +2,7 @@ package main
 
 import (
 	"flag"
-	"fmt"
+	"github.com/marcosvm/containeer/container"
 	"github.com/ncw/swift"
 	"log"
 	"os"
@@ -47,17 +47,11 @@ func main() {
 	}
 
 	if *list {
-		log.Printf("Listing containers using filter: %s", *listFilter)
-		containersOpts := swift.ContainersOpts{
-			Marker: *listFilter,
-		}
-
-		containers, _ := co.ContainerNames(&containersOpts)
-		fmt.Println(containers)
-		return
+		container.PrintContainers(&co, *listFilter)
+		os.Exit(0)
 	}
 
-	log.Printf("Creating containers from %s to %s", containerName(*prefix, 1), containerName(*prefix, *num))
+	log.Printf("Creating containers from %s to %s", container.ContainerName(*prefix, 1), container.ContainerName(*prefix, *num))
 	log.Printf("Using %d concurrent requests", *concurrency)
 
 	var throttle = make(chan int, *concurrency)
@@ -67,24 +61,12 @@ func main() {
 		// send message to channel. buffered channels will block if it reaches maxConcurrency
 		throttle <- 1
 		wg.Add(1)
-		go handle(containerName(*prefix, i), &wg, throttle)
+		go handle(container.ContainerName(*prefix, i), &wg, throttle)
 	}
-}
-
-func containerName(p string, n int) string {
-	return fmt.Sprintf("%s%05d", p, n)
 }
 
 func handle(c string, wg *sync.WaitGroup, throttle chan int) {
 	defer wg.Done()
-	createContainer(c)
+	container.CreateContainer(&co, c)
 	<-throttle
-}
-
-func createContainer(name string) {
-	if err := co.ContainerCreate(name, nil); err != nil {
-		log.Printf("%s failed", name)
-	} else {
-		log.Println(name)
-	}
 }
