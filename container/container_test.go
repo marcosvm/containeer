@@ -11,8 +11,8 @@ func TestContainerName(t *testing.T) {
 	num := 1
 	expected := "prefix_00001"
 
-	if actual := container.ContainerName(prefix, num); actual != expected {
-		t.Errorf("got %s but %s was expected", actual, expected)
+	if actual := container.ContainerName(prefix, num); actual != expected { // HL
+		t.Errorf("got %s but %s was expected", actual, expected) // HL
 	}
 }
 

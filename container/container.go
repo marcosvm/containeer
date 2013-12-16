@@ -21,7 +21,7 @@ func PrintContainers(co *swift.Connection, f string) {
 		Marker: f,
 	}
 
-	c, _ := co.ContainerNames(&opts)
+	c, _ := co.ContainerNames(&opts) // HL
 	fmt.Println(c)
 	return
 }
@@ -30,7 +30,7 @@ func PrintContainers(co *swift.Connection, f string) {
 
 // START2 OMIT
 func CreateContainer(co *swift.Connection, name string) {
-	if err := co.ContainerCreate(name, nil); err != nil {
+	if err := co.ContainerCreate(name, nil); err != nil { // HL
 		log.Printf("%s failed", name)
 	} else {
 		log.Println(name)
