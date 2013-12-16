@@ -6,10 +6,13 @@ import (
 	"log"
 )
 
+// Create a string represent a container name
+// n will be padded with zeroes
 func ContainerName(p string, n int) string {
 	return fmt.Sprintf("%s%05d", p, n)
 }
 
+// START1 OMIT
 func PrintContainers(co *swift.Connection, f string) {
 
 	log.Printf("Listing containers using filter: %s", f)
@@ -23,6 +26,9 @@ func PrintContainers(co *swift.Connection, f string) {
 	return
 }
 
+// STOP1 OMIT
+
+// START2 OMIT
 func CreateContainer(co *swift.Connection, name string) {
 	if err := co.ContainerCreate(name, nil); err != nil {
 		log.Printf("%s failed", name)
@@ -30,3 +36,5 @@ func CreateContainer(co *swift.Connection, name string) {
 		log.Println(name)
 	}
 }
+
+// STOP2 OMIT

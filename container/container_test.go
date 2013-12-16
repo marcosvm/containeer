@@ -1,10 +1,19 @@
-package container
+package container_test
 
-import "testing"
+import (
+	"github.com/marcosvm/containeer/container"
+	"testing"
+)
 
-func testContainerName(t *testing.T) {
-	expected := "prefix_0002"
-	if actual := ContainerName(expected, 1); actual != expected {
+// START1 OMIT
+func TestContainerName(t *testing.T) {
+	prefix := "prefix_"
+	num := 1
+	expected := "prefix_00001"
+
+	if actual := container.ContainerName(prefix, num); actual != expected {
 		t.Errorf("got %s but %s was expected", actual, expected)
 	}
 }
+
+// STOP1 OMIT

@@ -54,6 +54,7 @@ func main() {
 	log.Printf("Creating containers from %s to %s", container.ContainerName(*prefix, 1), container.ContainerName(*prefix, *num))
 	log.Printf("Using %d concurrent requests", *concurrency)
 
+	// START1 OMIT
 	var throttle = make(chan int, *concurrency)
 	var wg sync.WaitGroup
 
@@ -63,10 +64,14 @@ func main() {
 		wg.Add(1)
 		go handle(container.ContainerName(*prefix, i), &wg, throttle)
 	}
+	// STOP1 OMIT
 }
 
+// START2 OMIT
 func handle(c string, wg *sync.WaitGroup, throttle chan int) {
 	defer wg.Done()
 	container.CreateContainer(&co, c)
 	<-throttle
 }
+
+// STOP2 OMIT
