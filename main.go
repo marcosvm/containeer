@@ -2,7 +2,7 @@ package main
 
 import (
 	"flag"
-	"fmt"
+	"github.com/marcosvm/containeer/container"
 	"github.com/ncw/swift"
 	"log"
 	"os"
@@ -13,17 +13,29 @@ var co swift.Connection
 
 func main() {
 
+	// START3 OMIT
 	list := flag.Bool("list", false, "prints a list of existent containers and exits")
-	listFilter := flag.String("list_filter", "", "a filter to list the containers")
-	prefix := flag.String("prefix", "development_", "prefix for the containers names")
-	concurrency := flag.Int("concurrency", 50, "how many concurrent requests")
-	num := flag.Int("num", 10000, "number of containers to be create")
-	dry := flag.Bool("dry", false, "dry run, won't create any container")
-	flag.Parse()
 
+	listFilter := flag.String("list_filter", "", "a filter to list the containers")
+
+	prefix := flag.String("prefix", "development_", "prefix for the containers names") // HL
+
+	concurrency := flag.Int("concurrency", 50, "how many concurrent requests")
+
+	num := flag.Int("num", 10000, "number of containers to be create")
+
+	dry := flag.Bool("dry", false, "dry run, won't create any container")
+
+	flag.Parse()
+	// STOP3 OMIT
+
+	// START4 OMIT
 	userName := os.Getenv("SWIFT_API_USER")
-	apiKey := os.Getenv("SWIFT_API_KEY")
+
+	apiKey := os.Getenv("SWIFT_API_KEY") // HL
+
 	authUrl := os.Getenv("SWIFT_AUTH_URL")
+	// STOP4 OMIT
 
 	if userName == "" || apiKey == "" || authUrl == "" {
 		log.Fatal("SWIFT_API_USER, SWIFT_API_KEY and SWIFT_AUTH_URL environment variables need to be set")
@@ -42,52 +54,36 @@ func main() {
 		AuthUrl:  authUrl,
 	}
 
-	err := co.Authenticate()
-
-	if err != nil {
-		panic(err)
+	if err := co.Authenticate(); err != nil {
+		log.Fatal(err)
 	}
 
 	if *list {
-		log.Printf("Listing containers using filter: %s", *listFilter)
-		containersOpts := swift.ContainersOpts{
-			Marker: *listFilter,
-		}
-
-		containers, _ := co.ContainerNames(&containersOpts)
-		fmt.Println(containers)
-		return
+		container.PrintContainers(&co, *listFilter)
+		os.Exit(0)
 	}
 
-	log.Printf("Creating containers from %s to %s", containerName(*prefix, 1), containerName(*prefix, *num))
+	log.Printf("Creating containers from %s to %s", container.ContainerName(*prefix, 1), container.ContainerName(*prefix, *num))
 	log.Printf("Using %d concurrent requests", *concurrency)
 
-	var throttle = make(chan int, *concurrency)
+	// START1 OMIT
+	var throttle = make(chan int, *concurrency) // HL
 	var wg sync.WaitGroup
 
 	for i := 1; i <= *num; i++ {
 		// send message to channel. buffered channels will block if it reaches maxConcurrency
-		throttle <- 1
+		throttle <- 1 // HL
 		wg.Add(1)
-		go handle(containerName(*prefix, i), &wg, throttle)
+		go handle(container.ContainerName(*prefix, i), &wg, throttle) // HL
 	}
+	// STOP1 OMIT
 }
 
-func containerName(p string, n int) string {
-	return fmt.Sprintf("%s%05d", p, n)
-}
-
+// START2 OMIT
 func handle(c string, wg *sync.WaitGroup, throttle chan int) {
 	defer wg.Done()
-	createContainer(c)
-	<-throttle
+	container.CreateContainer(&co, c)
+	<-throttle // HL
 }
 
-func createContainer(name string) {
-	err := co.ContainerCreate(name, nil)
-	if err != nil {
-		log.Printf("%s failed", name)
-	} else {
-		log.Println(name)
-	}
-}
+// STOP2 OMIT

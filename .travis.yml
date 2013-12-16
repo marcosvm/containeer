@@ -6,4 +6,4 @@ go:
   - 1.2
   - tip
 
-script: go test -v
+script: go test -v github.com/marcosvm/containeer/container

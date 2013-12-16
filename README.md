@@ -57,7 +57,7 @@ SWIFT_AUTH_URL=https://lon.auth.api.rackspacecloud.com/v2.0 \
 containeer -list -list_filter=production_09000
 ```
 
-The command above will list existent containers *above* production_09000
+The command above will print existent containers *above* production_09000
 
 A list is printed:
 ```
@@ -66,7 +66,7 @@ production_09000 production_09001 ... production_10000
 
 ## To do
 
-* tests
+* more tests
 * documentation (go docs)
 
 ## Contributing
