@@ -26,6 +26,8 @@ func main() {
 
 	dry := flag.Bool("dry", false, "dry run, won't create any container")
 
+	single := flag.String("single", "", "create a single container")
+
 	flag.Parse()
 	// STOP3 OMIT
 
@@ -39,10 +41,6 @@ func main() {
 
 	if userName == "" || apiKey == "" || authUrl == "" {
 		log.Fatal("SWIFT_API_USER, SWIFT_API_KEY and SWIFT_AUTH_URL environment variables need to be set")
-	}
-
-	if *dry {
-		return
 	}
 
 	log.Println("Starting")
@@ -63,8 +61,17 @@ func main() {
 		os.Exit(0)
 	}
 
+	if *single != "" {
+		container.CreateContainer(&co, *single)
+		os.Exit(0)
+	}
+
 	log.Printf("Creating containers from %s to %s", container.ContainerName(*prefix, 1), container.ContainerName(*prefix, *num))
 	log.Printf("Using %d concurrent requests", *concurrency)
+
+	if *dry {
+		return
+	}
 
 	// START1 OMIT
 	var throttle = make(chan int, *concurrency) // HL
