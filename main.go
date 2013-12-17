@@ -77,6 +77,8 @@ func main() {
 		go handle(container.ContainerName(*prefix, i), &wg, throttle) // HL
 	}
 	// STOP1 OMIT
+
+	wg.Wait()
 }
 
 // START2 OMIT
