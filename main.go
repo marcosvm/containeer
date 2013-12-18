@@ -76,6 +76,7 @@ func main() {
 	// START1 OMIT
 	var throttle = make(chan int, *concurrency) // HL
 	var wg sync.WaitGroup
+	defer wg.Wait()
 
 	for i := 1; i <= *num; i++ {
 		// send message to channel. buffered channels will block if it reaches maxConcurrency
@@ -84,8 +85,6 @@ func main() {
 		go handle(container.ContainerName(*prefix, i), &wg, throttle) // HL
 	}
 	// STOP1 OMIT
-
-	wg.Wait()
 }
 
 // START2 OMIT
