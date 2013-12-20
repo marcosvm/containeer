@@ -6,6 +6,7 @@ import (
 	"github.com/ncw/swift"
 	"log"
 	"os"
+	"runtime/pprof"
 	"sync"
 )
 
@@ -28,6 +29,8 @@ func main() {
 
 	single := flag.String("single", "", "create a single container")
 
+	cpuprofile := flag.String("cpuprofile", "", "write cpu profile to file")
+
 	flag.Parse()
 	// STOP3 OMIT
 
@@ -41,6 +44,15 @@ func main() {
 
 	if userName == "" || apiKey == "" || authUrl == "" {
 		log.Fatal("SWIFT_API_USER, SWIFT_API_KEY and SWIFT_AUTH_URL environment variables need to be set")
+	}
+
+	if *cpuprofile != "" {
+		f, err := os.Create(*cpuprofile)
+		if err != nil {
+			log.Fatal(err)
+		}
+		pprof.StartCPUProfile(f)
+		defer pprof.StopCPUProfile()
 	}
 
 	log.Println("Starting")
