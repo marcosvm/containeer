@@ -2,7 +2,7 @@
 
 Containeer is a tool to create multiple containers on the [Rackspace CloudFiles storage service](http://www.rackspace.com/cloud/files/) using go concurrency primitives
 
-As is known Cloud Files will throttle you in 4 req/s if the number of objects in a container goes over 500,000 wich is not [*web scale*](https://www.youtube.com/watch?v=b2F-DItXtZs)
+As is known Cloud Files will throttle you in 4 req/s if the number of objects in a container goes over 500,000 which is not [*web scale*](https://www.youtube.com/watch?v=b2F-DItXtZs)
 
 To overcame this limitation one solution is to create multiple containers and keep the number of objects below 500,000.
 
@@ -23,13 +23,15 @@ SWIFT_AUTH_URL
 ```
 
 ```bash
-Usage of containeer:
+Usage of ./containeer:
   -concurrency=50: how many concurrent requests
+  -cpuprofile="": write cpu profile to file
   -dry=false: dry run, won't create any container
   -list=false: prints a list of existent containers and exits
   -list_filter="": a filter to list the containers
-  -num=10000: number of containers to be create
+  -num=10000: number of containers to create
   -prefix="development_": prefix for the containers names
+  -single="": create a single container
 ```
 
 ## Example creating containers
@@ -62,6 +64,14 @@ The command above will print existent containers *above* production_09000
 A list is printed:
 ```
 production_09000 production_09001 ... production_10000
+```
+
+## Example creating a single container
+```bash
+SWIFT_API_USER=your_api_user \
+SWIFT_API_KEY=your_api_key \
+SWIFT_AUTH_URL=https://lon.auth.api.rackspacecloud.com/v2.0 \
+containeer -single="single_container"
 ```
 
 ## To do

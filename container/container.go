@@ -1,3 +1,5 @@
+// Package container provides methods for
+// creating and printing containers
 package container
 
 import (
@@ -6,35 +8,36 @@ import (
 	"log"
 )
 
-// Create a string represent a container name
-// n will be padded with zeroes
-func ContainerName(p string, n int) string {
-	return fmt.Sprintf("%s%05d", p, n)
+type Container struct {
+	Connection *swift.Connection
 }
 
-// START1 OMIT
-func PrintContainers(co *swift.Connection, f string) {
+// ContainerName returns a string to represent a container name
+// that will be padded with n zeroes
+func (c *Container) ContainerName(p *string, n int) string {
+	return fmt.Sprintf("%s%05d", *p, n)
+}
 
-	log.Printf("Listing containers using filter: %s", f)
+// PrintContainers prints a container list with f as a
+// filter passed for the CloudFiles API
+func (c *Container) PrintContainers(f *string) {
+
+	log.Printf("Listing containers using filter: %s", *f)
 
 	opts := swift.ContainersOpts{
-		Marker: f,
+		Marker: *f,
 	}
 
-	c, _ := co.ContainerNames(&opts) // HL
-	fmt.Println(c)
+	containers, _ := c.Connection.ContainerNames(&opts) // HL
+	fmt.Println(containers)
 	return
 }
 
-// STOP1 OMIT
-
-// START2 OMIT
-func CreateContainer(co *swift.Connection, name string) {
-	if err := co.ContainerCreate(name, nil); err != nil { // HL
-		log.Printf("%s failed", name)
+// CreateContainer creates a container with the given name
+func (c *Container) CreateContainer(name *string) {
+	if err := c.Connection.ContainerCreate(*name, nil); err != nil { // HL
+		log.Printf("%s failed", *name)
 	} else {
-		log.Println(name)
+		log.Println(*name)
 	}
 }
-
-// STOP2 OMIT

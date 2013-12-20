@@ -10,37 +10,25 @@ import (
 	"sync"
 )
 
-var co swift.Connection
+var (
+	cc          container.Container
+	list        = flag.Bool("list", false, "prints a list of existent containers and exits")
+	listFilter  = flag.String("list_filter", "", "a filter to list the containers")
+	prefix      = flag.String("prefix", "development_", "prefix for the containers names")
+	concurrency = flag.Int("concurrency", 50, "how many concurrent requests")
+	num         = flag.Int("num", 10000, "number of containers to create")
+	dry         = flag.Bool("dry", false, "dry run, won't create any container")
+	single      = flag.String("single", "", "create a single container")
+	cpuprofile  = flag.String("cpuprofile", "", "write cpu profile to file")
+)
 
 func main() {
 
-	// START3 OMIT
-	list := flag.Bool("list", false, "prints a list of existent containers and exits")
-
-	listFilter := flag.String("list_filter", "", "a filter to list the containers")
-
-	prefix := flag.String("prefix", "development_", "prefix for the containers names") // HL
-
-	concurrency := flag.Int("concurrency", 50, "how many concurrent requests")
-
-	num := flag.Int("num", 10000, "number of containers to be create")
-
-	dry := flag.Bool("dry", false, "dry run, won't create any container")
-
-	single := flag.String("single", "", "create a single container")
-
-	cpuprofile := flag.String("cpuprofile", "", "write cpu profile to file")
-
 	flag.Parse()
-	// STOP3 OMIT
 
-	// START4 OMIT
 	userName := os.Getenv("SWIFT_API_USER")
-
-	apiKey := os.Getenv("SWIFT_API_KEY") // HL
-
+	apiKey := os.Getenv("SWIFT_API_KEY")
 	authUrl := os.Getenv("SWIFT_AUTH_URL")
-	// STOP4 OMIT
 
 	if userName == "" || apiKey == "" || authUrl == "" {
 		log.Fatal("SWIFT_API_USER, SWIFT_API_KEY and SWIFT_AUTH_URL environment variables need to be set")
@@ -58,7 +46,7 @@ func main() {
 	log.Println("Starting")
 	log.Println("Creating connection to CloudFiles")
 
-	co = swift.Connection{
+	co := swift.Connection{
 		UserName: userName,
 		ApiKey:   apiKey,
 		AuthUrl:  authUrl,
@@ -68,24 +56,27 @@ func main() {
 		log.Fatal(err)
 	}
 
+	cc = container.Container{
+		Connection: &co,
+	}
+
 	if *list {
-		container.PrintContainers(&co, *listFilter)
+		cc.PrintContainers(listFilter)
 		os.Exit(0)
 	}
 
 	if *single != "" {
-		container.CreateContainer(&co, *single)
+		cc.CreateContainer(single)
 		os.Exit(0)
 	}
 
-	log.Printf("Creating containers from %s to %s", container.ContainerName(*prefix, 1), container.ContainerName(*prefix, *num))
+	log.Printf("Creating containers from %s to %s", cc.ContainerName(prefix, 1), cc.ContainerName(prefix, *num))
 	log.Printf("Using %d concurrent requests", *concurrency)
 
 	if *dry {
 		return
 	}
 
-	// START1 OMIT
 	var throttle = make(chan int, *concurrency) // HL
 	var wg sync.WaitGroup
 	defer wg.Wait()
@@ -94,16 +85,12 @@ func main() {
 		// send message to channel. buffered channels will block if it reaches maxConcurrency
 		throttle <- 1 // HL
 		wg.Add(1)
-		go handle(container.ContainerName(*prefix, i), &wg, throttle) // HL
+		go handle(cc.ContainerName(prefix, i), &wg, throttle) // HL
 	}
-	// STOP1 OMIT
 }
 
-// START2 OMIT
 func handle(c string, wg *sync.WaitGroup, throttle chan int) {
 	defer wg.Done()
-	container.CreateContainer(&co, c)
+	cc.CreateContainer(&c)
 	<-throttle // HL
 }
-
-// STOP2 OMIT
