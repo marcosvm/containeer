@@ -1,5 +1,7 @@
 # Containeer
 
+[![Build Status](https://travis-ci.org/marcosvm/containeer.png?branch=master)](https://travis-ci.org/marcosvm/containeer)
+
 Containeer is a tool to create multiple containers on the [Rackspace CloudFiles storage service](http://www.rackspace.com/cloud/files/) using go concurrency primitives
 
 As is known Cloud Files will throttle you in 4 req/s if the number of objects in a container goes over 500,000 which is not [*web scale*](https://www.youtube.com/watch?v=b2F-DItXtZs)
