@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html>
+
+  <head>
+    <meta charset='utf-8' />
+    <meta http-equiv="X-UA-Compatible" content="chrome=1" />
+    <meta name="description" content="Containeer : A tool to concurrently create Cloud Files containers" />
+
+    <link rel="stylesheet" type="text/css" media="screen" href="stylesheets/stylesheet.css">
+
+    <title>Containeer</title>
+  </head>
+
+  <body>
+
+    <!-- HEADER -->
+    <div id="header_wrap" class="outer">
+        <header class="inner">
+          <a id="forkme_banner" href="https://github.com/marcosvm/containeer">View on GitHub</a>
+
+          <h1 id="project_title">Containeer</h1>
+          <h2 id="project_tagline">A tool to concurrently create Cloud Files containers</h2>
+
+            <section id="downloads">
+              <a class="zip_download_link" href="https://github.com/marcosvm/containeer/zipball/master">Download this project as a .zip file</a>
+              <a class="tar_download_link" href="https://github.com/marcosvm/containeer/tarball/master">Download this project as a tar.gz file</a>
+            </section>
+        </header>
+    </div>
+
+    <!-- MAIN CONTENT -->
+    <div id="main_content_wrap" class="outer">
+      <section id="main_content" class="inner">
+        <h1>
+<a name="containeer" class="anchor" href="#containeer"><span class="octicon octicon-link"></span></a>Containeer</h1>
+
+<p><a href="https://travis-ci.org/marcosvm/containeer"><img src="https://travis-ci.org/marcosvm/containeer.png?branch=master" alt="Build Status"></a></p>
+
+<p>Containeer is a tool to create multiple containers on the <a href="http://www.rackspace.com/cloud/files/">Rackspace CloudFiles storage service</a> using go concurrency primitives</p>
+
+<p>As is known Cloud Files will throttle you in 4 req/s if the number of objects in a container goes over 500,000 which is not <a href="https://www.youtube.com/watch?v=b2F-DItXtZs"><em>web scale</em></a></p>
+
+<p>To overcame this limitation one solution is to create multiple containers and keep the number of objects below 500,000.</p>
+
+<h2>
+<a name="setup" class="anchor" href="#setup"><span class="octicon octicon-link"></span></a>Setup</h2>
+
+<div class="highlight highlight-bash"><pre>go install github.com/marcosvm/containeer
+</pre></div>
+
+<h2>
+<a name="usage" class="anchor" href="#usage"><span class="octicon octicon-link"></span></a>Usage</h2>
+
+<p>You must define the following enviroment variables for the connection</p>
+
+<div class="highlight highlight-bash"><pre>SWIFT_API_USER
+SWIFT_API_KEY
+SWIFT_AUTH_URL
+</pre></div>
+
+<div class="highlight highlight-bash"><pre>Usage of ./containeer:
+  -concurrency<span class="o">=</span>50: how many concurrent requests
+  -cpuprofile<span class="o">=</span><span class="s2">""</span>: write cpu profile to file
+  -dry<span class="o">=</span><span class="nb">false</span>: dry run, won<span class="err">'</span>t create any container
+  -list<span class="o">=</span><span class="nb">false</span>: prints a list of existent containers and exits
+  -list_filter<span class="o">=</span><span class="s2">""</span>: a filter to list the containers
+  -num<span class="o">=</span>10000: number of containers to create
+  -prefix<span class="o">=</span><span class="s2">"development_"</span>: prefix <span class="k">for </span>the containers names
+  -single<span class="o">=</span><span class="s2">""</span>: create a single container
+</pre></div>
+
+<h2>
+<a name="example-creating-containers" class="anchor" href="#example-creating-containers"><span class="octicon octicon-link"></span></a>Example creating containers</h2>
+
+<div class="highlight highlight-bash"><pre><span class="nv">SWIFT_API_USER</span><span class="o">=</span>your_api_user <span class="se">\</span>
+<span class="nv">SWIFT_API_KEY</span><span class="o">=</span>your_api_key <span class="se">\</span>
+<span class="nv">SWIFT_AUTH_URL</span><span class="o">=</span>https://lon.auth.api.rackspacecloud.com/v2.0 <span class="se">\</span>
+containeer -num<span class="o">=</span>10000 -prefix<span class="o">=</span><span class="s2">"production_"</span>
+</pre></div>
+
+<p>The command above will create 10000 containers on the London endpoint using production_ as a prefix using 50 concurrent requests.</p>
+
+<p>Result is:</p>
+
+<pre><code>production_00001 production_00002 ... production_10000 are created
+</code></pre>
+
+<h2>
+<a name="example-listing-containers" class="anchor" href="#example-listing-containers"><span class="octicon octicon-link"></span></a>Example listing containers</h2>
+
+<div class="highlight highlight-bash"><pre><span class="nv">SWIFT_API_USER</span><span class="o">=</span>your_api_user <span class="se">\</span>
+<span class="nv">SWIFT_API_KEY</span><span class="o">=</span>your_api_key <span class="se">\</span>
+<span class="nv">SWIFT_AUTH_URL</span><span class="o">=</span>https://lon.auth.api.rackspacecloud.com/v2.0 <span class="se">\</span>
+containeer -list -list_filter<span class="o">=</span>production_09000
+</pre></div>
+
+<p>The command above will print existent containers <em>above</em> production_09000</p>
+
+<p>A list is printed:</p>
+
+<pre><code>production_09000 production_09001 ... production_10000
+</code></pre>
+
+<h2>
+<a name="example-creating-a-single-container" class="anchor" href="#example-creating-a-single-container"><span class="octicon octicon-link"></span></a>Example creating a single container</h2>
+
+<div class="highlight highlight-bash"><pre><span class="nv">SWIFT_API_USER</span><span class="o">=</span>your_api_user <span class="se">\</span>
+<span class="nv">SWIFT_API_KEY</span><span class="o">=</span>your_api_key <span class="se">\</span>
+<span class="nv">SWIFT_AUTH_URL</span><span class="o">=</span>https://lon.auth.api.rackspacecloud.com/v2.0 <span class="se">\</span>
+containeer -single<span class="o">=</span><span class="s2">"single_container"</span>
+</pre></div>
+
+<h2>
+<a name="to-do" class="anchor" href="#to-do"><span class="octicon octicon-link"></span></a>To do</h2>
+
+<ul>
+<li>more tests</li>
+<li>documentation (go docs)</li>
+</ul><h2>
+<a name="contributing" class="anchor" href="#contributing"><span class="octicon octicon-link"></span></a>Contributing</h2>
+
+<p>Contributions are welcome, create a GitHub issue or even better, a <em>Pull Request</em>, with code and tests.</p>
+
+<p>(c) 2013,2014 Marcos Oliveira</p>
+      </section>
+    </div>
+
+    <!-- FOOTER  -->
+    <div id="footer_wrap" class="outer">
+      <footer class="inner">
+        <p class="copyright">Containeer maintained by <a href="https://github.com/marcosvm">marcosvm</a></p>
+        <p>Published with <a href="http://pages.github.com">GitHub Pages</a></p>
+      </footer>
+    </div>
+
+              <script type="text/javascript">
+            var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+            document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+          </script>
+          <script type="text/javascript">
+            try {
+              var pageTracker = _gat._getTracker("UA-48580317-1");
+            pageTracker._trackPageview();
+            } catch(err) {}
+          </script>
+
+
+  </body>
+</html>
