@@ -11,15 +11,18 @@ import (
 )
 
 var (
-	cc          container.Container
-	list        = flag.Bool("list", false, "prints a list of existent containers and exits")
-	listFilter  = flag.String("list_filter", "", "a filter to list the containers")
-	prefix      = flag.String("prefix", "development_", "prefix for the containers names")
-	concurrency = flag.Int("concurrency", 50, "how many concurrent requests")
-	num         = flag.Int("num", 10000, "number of containers to create")
-	dry         = flag.Bool("dry", false, "dry run, won't create any container")
-	single      = flag.String("single", "", "create a single container")
-	cpuprofile  = flag.String("cpuprofile", "", "write cpu profile to file")
+	cc             container.Container
+	list           = flag.Bool("list", false, "prints a list of existent containers and exits")
+	listFilter     = flag.String("list_filter", "", "a filter to list the containers")
+	prefix         = flag.String("prefix", "development_", "prefix for the containers names")
+	concurrency    = flag.Int("concurrency", 50, "how many concurrent requests")
+	num            = flag.Int("num", 10000, "number of containers to create")
+	dry            = flag.Bool("dry", false, "dry run, won't create any container")
+	single         = flag.String("single", "", "create a single container")
+	cpuprofile     = flag.String("cpuprofile", "", "write cpu profile to file")
+	objects        = flag.String("objects", "", "list objects given a container")
+	objects_marker = flag.String("objects_marker", "", "marker to list objects given a container")
+	objects_limit  = flag.Int("objects_limit", 10000, "limit of objects objects to list given a container")
 )
 
 func main() {
@@ -67,6 +70,11 @@ func main() {
 
 	if *single != "" {
 		cc.CreateContainer(single)
+		os.Exit(0)
+	}
+
+	if *objects != "" {
+		cc.ListObjects(*objects, *objects_marker, *objects_limit)
 		os.Exit(0)
 	}
 
