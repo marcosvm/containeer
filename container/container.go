@@ -19,7 +19,9 @@ func (c *Container) ContainerName(p *string, n int) string {
 }
 
 // PrintContainers prints a container list with f as a
-// filter passed for the CloudFiles API
+// listing object that names are greater than filter
+// obs: limit will be the API default and
+// endmarker is not used
 func (c *Container) PrintContainers(f *string) {
 
 	log.Printf("Listing containers using filter: %s", *f)
@@ -28,8 +30,10 @@ func (c *Container) PrintContainers(f *string) {
 		Marker: *f,
 	}
 
-	containers, _ := c.Connection.ContainerNames(&opts) // HL
-	fmt.Println(containers)
+	containers, _ := c.Connection.Containers(&opts) // HL
+	for _, c := range containers {
+		log.Printf("Name:%s, objects:%d , bytes:%d", c.Name, c.Count, c.Bytes)
+	}
 	return
 }
 
