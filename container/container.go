@@ -45,3 +45,30 @@ func (c *Container) CreateContainer(name *string) {
 		log.Println(*name)
 	}
 }
+
+// ListObjects prints a list of objects given a container name
+// and a limit to start
+func (c *Container) ListObjects(container, marker string, limit int) {
+	log.Printf("Listing objects for container: %s", container)
+	log.Printf("listing %d objects", limit)
+
+	if marker != "" {
+		log.Printf("starting at: %s", marker)
+	}
+
+	// empty for now, let's see how it behaves
+	opts := swift.ObjectsOpts{
+		Marker: marker,
+		Limit:  limit,
+	}
+
+	objects, err := c.Connection.ObjectNames(container, &opts)
+
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	for _, o := range objects {
+		log.Printf("%s", o)
+	}
+}
