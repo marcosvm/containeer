@@ -28,8 +28,10 @@ func (c *Container) PrintContainers(f *string) {
 		Marker: *f,
 	}
 
-	containers, _ := c.Connection.ContainerNames(&opts) // HL
-	fmt.Println(containers)
+	containers, _ := c.Connection.Containers(&opts) // HL
+	for _, c := range containers {
+		log.Printf("Name:%s, objects:%d , bytes:%d", c.Name, c.Count, c.Bytes)
+	}
 	return
 }
 
