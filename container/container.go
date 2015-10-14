@@ -4,8 +4,10 @@ package container
 
 import (
 	"fmt"
-	"github.com/ncw/swift"
 	"log"
+	"os"
+
+	"github.com/ncw/swift"
 )
 
 type Container struct {
@@ -71,4 +73,18 @@ func (c *Container) ListObjects(container, marker string, limit int) {
 	for _, o := range objects {
 		log.Printf("%s", o)
 	}
+}
+
+// GetBytes get bytes, err, from object stored on container
+// and prints then to stdout
+func (c *Container) GetBytes(container, object string) {
+	log.Printf("Getting bytes from %s on %s", object, container)
+
+	contents, err := c.Connection.ObjectGetBytes(container, object)
+
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	os.Stdout.Write(contents)
 }

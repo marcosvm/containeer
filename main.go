@@ -2,12 +2,13 @@ package main
 
 import (
 	"flag"
-	"github.com/marcosvm/containeer/container"
-	"github.com/ncw/swift"
 	"log"
 	"os"
 	"runtime/pprof"
 	"sync"
+
+	"github.com/marcosvm/containeer/container"
+	"github.com/ncw/swift"
 )
 
 var (
@@ -23,6 +24,8 @@ var (
 	objects        = flag.String("objects", "", "list objects given a container")
 	objects_marker = flag.String("objects_marker", "", "marker to list objects given a container")
 	objects_limit  = flag.Int("objects_limit", 10000, "limit of objects objects to list given a container")
+	getbytes       = flag.String("getbytes", "", "get bytes from object")
+	directory      = flag.String("directory", "", "container to get bytes from")
 )
 
 func main() {
@@ -76,6 +79,13 @@ func main() {
 	if *objects != "" {
 		cc.ListObjects(*objects, *objects_marker, *objects_limit)
 		os.Exit(0)
+	}
+
+	if *getbytes != "" {
+		if *directory != "" {
+			cc.GetBytes(*directory, *getbytes)
+			os.Exit(0)
+		}
 	}
 
 	log.Printf("Creating containers from %s to %s", cc.ContainerName(prefix, 1), cc.ContainerName(prefix, *num))
